@@ -24,12 +24,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
     {
         Users.add(user);
         notifyDataSetChanged();
+        DataPersistencyHelper.StoreData(Users);
     }
 
     public void DeleteContact(int position)
     {
         Users.remove(position);
         notifyDataSetChanged();
+        DataPersistencyHelper.StoreData(Users);
     }
     @NonNull
     @Override

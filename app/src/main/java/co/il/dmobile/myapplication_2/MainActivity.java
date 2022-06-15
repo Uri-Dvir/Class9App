@@ -1,5 +1,8 @@
 package co.il.dmobile.myapplication_2;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,19 +34,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         List<User> users = new ArrayList<User>();
-        users.add(new User(R.drawable.avatar1,"Contact 1","contact1@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar2,"Contact 2","contact2@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar3,"Contact 3","contact3@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar4,"Contact 4","contact4@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar5,"Contact 5","contact5@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar6,"Contact 6","contact6@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar7,"Contact 7","contact7@post.idc.ac.il"));
-        users.add(new User(R.drawable.avatar8,"Contact 8","contact8@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar1, "Contact 1", "contact1@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar2, "Contact 2", "contact2@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar3, "Contact 3", "contact3@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar4, "Contact 4", "contact4@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar5, "Contact 5", "contact5@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar6, "Contact 6", "contact6@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar7, "Contact 7", "contact7@post.idc.ac.il"));
+        users.add(new User(R.drawable.avatar8, "Contact 8", "contact8@post.idc.ac.il"));
 
         RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setHasFixedSize(false);
 
-        RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(),1);
+        RecyclerView.LayoutManager manager = new GridLayoutManager(getApplicationContext(), 1);
         recycler.setLayoutManager(manager);
 
         adapter = new UserAdapter(users);
@@ -52,29 +55,34 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper helper = new ItemTouchHelper(new SwipeToDeleteCallback(adapter));
         helper.attachToRecyclerView(recycler);
 
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                         Intent data = result.getData();
+                         newContactResult(data);
+                    }
+                });
 
         FloatingActionButton btn = findViewById(R.id.floatingActionButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(v.getContext(),AddContactActivity.class);
+                Intent i = new Intent(v.getContext(), AddContactActivity.class);
                 ActivityOptionsCompat options =
                         ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) v.getContext(),
                                 btn,
                                 "bg"
                         );
-                startActivityForResult(i,1,options.toBundle());
+                activityResultLauncher.launch(i, options);
             }
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode==1) {
+    protected void newContactResult (Intent data) {
             Bundle b = data.getExtras();
             User user = (User) b.getSerializable("user");
             adapter.AddContact(user);
-        }
     }
 }
